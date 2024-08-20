@@ -1,8 +1,12 @@
 from django.db.models import QuerySet, Prefetch
 
 from cheatgame.product.filters import ProductFilter
-from cheatgame.product.models import Product, Question, Reviews, Label, LabelType, SuggestionProduct
+from cheatgame.product.models import Product, Question, Reviews, Label, LabelType, SuggestionProduct, ProductCategory
 
+
+def product_list_by_slug(*, slug: str) -> QuerySet[Product]:
+    product_ids = ProductCategory.objects.filter(category__slug=slug).values_list('product__id', flat=True)
+    return Product.objects.filter(id__in=product_ids)
 
 def product_list(*, filters=None) -> QuerySet[Product]:
     filters = filters or {}

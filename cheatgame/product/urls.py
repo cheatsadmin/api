@@ -10,7 +10,7 @@ from cheatgame.product.apis.image import ImageAdminApi, ImageDetailAdminApi
 from cheatgame.product.apis.label import LabelAdminApi, ProductLabelAdminApi, LabelDetailAdminApi, \
     ProductLabelDetailAdminApi, LabelListApi, CosoleLabelListApi, CapacityLabelListApi, LabelListAdminApi
 from cheatgame.product.apis.product import ProductAdminApi, ProudctApi, ProductNoteAdminApi, \
-    ProductNoteDetailApi, ProductDetailApi, ProductDetailAdminApi
+    ProductNoteDetailApi, ProductDetailApi, ProductDetailAdminApi, ProudctApiBySlug
 from cheatgame.product.apis.question import QuestionApi, QuestionDetailAdminApi, QuestionListAPIView
 from cheatgame.product.apis.rating import ReviewListAPIView
 from cheatgame.product.apis.reviews import ReviewsCreateAPIView
@@ -29,6 +29,7 @@ urlpatterns = [
     path("product-deatil/<int:id>/" , ProductDetailAdminApi.as_view() , name="product-detail-admin-api"),
     path("product-detail/<custom_slug:slug>/", ProductDetailApi.as_view(), name="product-detail"),
     path("get-product/", ProudctApi.as_view(), name="product-customer"),
+    path("get-product/<custom_slug:slug>/", ProudctApiBySlug.as_view(), name="product-customer-by-slug"),
     path("image/", ImageAdminApi.as_view(), name="image-admin"),
     path("image-detail/<int:id>/", ImageDetailAdminApi.as_view(), name="image-detail-admin"),
     path("question/", QuestionApi.as_view(), name="question-admin"),

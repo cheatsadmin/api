@@ -24,7 +24,7 @@ class ProductFilter(FilterSet):
         return queryset.filter(product_type=int(value))
 
     def filter_search(self, queryset, name, value):
-        return queryset.annotate(search=SearchVector("title")).filter(search=value)
+        return queryset.annotate(search=SearchVector("slug") + SearchVector("title")).filter(search=value)
 
     def filter_categories__in(self, queryset, name, value):
         limit = 10

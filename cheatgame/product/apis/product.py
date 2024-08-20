@@ -12,7 +12,7 @@ from cheatgame.common.utils import reformat_url
 from cheatgame.product.models import ProductType, Product, ProductOrderBy, Image, Category, Feature, ValuesList, \
     Attachment, Question, Label, ProductNote
 from cheatgame.product.permissions import AdminOrManagerPermission
-from cheatgame.product.selectors.product import product_list, product_detail
+from cheatgame.product.selectors.product import product_list, product_detail, product_list_by_slug
 from cheatgame.product.services.product import create_product, create_product_note, update_product_note, \
     delete_product_note, update_product, check_product_exists, delete_product
 from cheatgame.users.models import BaseUser
@@ -219,6 +219,34 @@ class ProudctApi(APIView):
         filters_serializer.is_valid(raise_exception=True)
         try:
             query = product_list(filters=filters_serializer.validated_data)
+        except Exception as error:
+            return Response(
+                {"error": "مشکلی رخ داده است."}, status=status.HTTP_400_BAD_REQUEST)
+        return get_paginated_response(
+            pagination_class=self.Pagination,
+            serializer_class=ProudctOutPutSerializer,
+            queryset=query,
+            view=self,
+            request=request
+        )
+
+
+class ProudctApiBySlug(APIView):
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class PaginatedProductSerializer(PaginatedSerializer):
+        results = ProudctOutPutSerializer(many=True)
+
+    class PaginationParameterSerializer(serializers.Serializer):
+        limit = serializers.IntegerField(required=False)
+        offset = serializers.IntegerField(required=False)
+
+    @extend_schema(parameters=[PaginationParameterSerializer],
+                   responses=PaginatedProductSerializer, )
+    def get(self, request, slug: str):
+        try:
+            query = product_list_by_slug(slug=slug)
         except Exception as error:
             return Response(
                 {"error": "مشکلی رخ داده است."}, status=status.HTTP_400_BAD_REQUEST)
