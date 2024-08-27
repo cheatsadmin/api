@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cheatgame.api.mixins import ApiAuthMixin
-from cheatgame.api.pagination import LimitOffsetPagination, get_paginated_response, PaginatedSerializer
+from cheatgame.api.pagination import LimitOffsetPagination, get_paginated_response, PaginatedSerializer, get_paginated_response_context
 from cheatgame.api.utils import inline_serializer
 from cheatgame.common.utils import reformat_url
 from cheatgame.product.models import ProductType, Product, ProductOrderBy, Image, Category, Feature, ValuesList, \
@@ -167,6 +167,15 @@ class ProductDetailAdminApi(ApiAuthMixin, APIView):
 class ProudctOutPutSerializer(serializers.ModelSerializer):
     included_products = ProductDetailProductSerializer(many=True)
     main_image = serializers.SerializerMethodField()
+    category_id = serializers.SerializerMethodField()
+
+    def get_category_id(self, obj):
+        global category_slug
+        request = self.context.get('request', None)
+        if request:
+            category_slug = request.parser_context["kwargs"]["slug"]
+        category_object = Category.objects.get(slug=category_slug)
+        return category_object.id
 
     def get_main_image(self, obj):
         return reformat_url(url=obj.main_image.url)
@@ -186,7 +195,8 @@ class ProudctOutPutSerializer(serializers.ModelSerializer):
         model = Product
         fields = ("id", "product_type", "title", "slug", "main_image",
                   "price", "off_price", "discount_end_time",
-                  "included_products", "order_limit", "device_model", "attachments" , "score"
+                  "included_products", "order_limit", "device_model", "attachments" , "score",
+                  "category_id",
                   )
 
 
@@ -250,7 +260,7 @@ class ProudctApiBySlug(APIView):
         except Exception as error:
             return Response(
                 {"error": "مشکلی رخ داده است."}, status=status.HTTP_400_BAD_REQUEST)
-        return get_paginated_response(
+        return get_paginated_response_context(
             pagination_class=self.Pagination,
             serializer_class=ProudctOutPutSerializer,
             queryset=query,

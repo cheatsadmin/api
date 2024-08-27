@@ -82,7 +82,7 @@ class CategoryListOutPutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("id", "name", "category_type", "parent", "children")
+        fields = ("id", "name", "category_type", "slug", "parent", "children")
 
     def get_children(self, obj) -> dict :
         children = Category.objects.filter(parent=obj)
